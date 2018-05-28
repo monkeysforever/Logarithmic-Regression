@@ -8,15 +8,48 @@ Created on Mon May 28 10:07:04 2018
 import numpy as np
 import os
 import re
-import matplotlib.pyplot as plt
 import imageio
 from skimage.transform import resize
 
 def sigmoid(x):
+    """
+    Sigmoid activation function
+    
+    Used to activate linear equation of input matrix, weights and bias
+    
+    Parameters:
+    -----------
+    x : numpy array
+        Input to be activated
+    
+    Returns:
+    --------
+        numpy array
+        Activated input
+    """
+    
     return (1/(1+np.exp(-x)))
 
-def init_parameters(dimensions):
-    w = np.zeros([dimensions, 1], dtype = np.float64)
+def init_parameters(dimension):
+    """
+    Weights and bias initializer
+    
+    Used to initialize weights and bias to 0
+    
+    Parameters:
+    -----------
+    dimesions : int
+        Dimension of input features
+    
+    Returns:
+    --------
+    w : numpy array
+        Weight vector of size (dimension, 1)
+        
+    b : float
+        Bias scalar        
+    """
+    w = np.zeros([dimension, 1], dtype = np.float64)
     b = 0
     return w, b
 
