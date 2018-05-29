@@ -152,9 +152,14 @@ def normalize_dataset(X):
 #2.Flatten training set and test set inputs
 #X_train = flatten_dataset(X_train)
 #X_test = flatten_dataset(X_test)
+    
+#3. Normalize your training data
+#X_train = normalize_dataset(X_train)
 
-#3.Train your model
+#4.Train your model
 #train_accuracy, test_accuracy, w, b, Costs, Y_train_pre, Y_test_pre = logistic_regression(X_train, Y_train, X_test, Y_test, 1000, 0.001, 100)
 
 #Use predict functions with weigths and bias after training to make predictions
 #Train and test accuracy can be improved by changing the values of hyperparameters learning_rate, num_iterations, file_count
+#Try to plot the cost values with number of iterations to get an intuition about the reducing cost
+#If your cost fluctuates up and down reduce learning_rate
