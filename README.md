@@ -19,6 +19,9 @@ Dataset type : Blobs
 Dataset Size : 5000  
 Training Accuracy : 99.77777    
 Test Accuracy : 100  
-Learning Rate :.005  
+Learning Rate : .005  
 Number of Iterations : 2000  
 
+![costs2](https://user-images.githubusercontent.com/13309365/40877533-37b4ed08-66a0-11e8-9058-a71343171d10.png)
+![training2](https://user-images.githubusercontent.com/13309365/40877534-3943deae-66a0-11e8-8c49-cc92d08aa782.png)
+![predictions2](https://user-images.githubusercontent.com/13309365/40877536-3aa1dcb0-66a0-11e8-822c-1d513a5714f7.png)
