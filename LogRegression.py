@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-This program performs logistic regression on a dataset of images of cats and dogs and outputs a classifier which can classify an image as a dog or cat.
-The code can also be reused for other datasets with some minor changes
-
+This program performs logistic regression on three types of datasets which can be generated using sklearn.
 @author: Randeep
 """
 
 import numpy as np
-import os
-import re
-import imageio
-from skimage.transform import resize
+from sklearn.datasets import make_moons, make_circles
+from sklearn.datasets import make_blobs
+from matplotlib import pyplot
+from pandas import DataFrame
+
+SPLIT_RATIO = 90
 
 def sigmoid(x):
     #The function returns values ranging from 0 to 1, which helps to quantify the probability of the image being of a cat
@@ -37,7 +37,7 @@ def forward_propagation(X, Y, w, b):
     #A here refers to our predicted probability and Cost is the total logarithmic loss over all training examples
     #Cost is a scalar
     Cost = -(np.matmul(Y, np.log(A).T) + np.matmul((1 - Y), np.log(1 - A).T))/m 
-    
+    Cost = np.squeeze(Cost)
     return Cost, A
 
 def back_propagation(X, Y, A):
@@ -49,7 +49,6 @@ def back_propagation(X, Y, A):
     dw = (np.matmul(X, (A - Y).T))/m
     db = np.sum((A - Y), axis = 1)/m
     return dw, db
-
 
 def predict(X, w, b):
     #The functions takes in an input with our adjusted weights and bias to produce a prediction ranging from 0 to 1
@@ -93,73 +92,54 @@ def logistic_regression(X_train, Y_train, X_test, Y_test, num_iterations, learni
     Y_test_accuracy = 100 - np.mean(np.abs(Y_test_predictions - Y_test))*100
     return Y_train_accuracy, Y_test_accuracy, w, b, Costs, Y_train_predictions, Y_test_predictions
 
-def load_datasets(filepath, dimension, file_count):
-    #The functions loads the images of our datasets as numpy arrays
-    #For other data sets this function will have to be tweaked
-    #Get the file names of the images in folder with filepath and randomly choose the number of files specified by file_count
-    #file_count limits the number of files to be loaded
-    dirs = np.random.choice(os.listdir(filepath), file_count)
-    #Split the data into training set and test set, we use the ration 3:1
-    split = file_count*3//4
-    train_files = dirs[:split]
-    test_files = dirs[split:file_count]
-    #dimensions of X_train are (training examples, height, width, number of channels), for rgb images number of channels is 3
-    X_train = np.zeros((split, dimension, dimension, 3))
-    Y_train = np.zeros((1, split))
-    X_test = np.zeros((file_count - split, dimension, dimension, 3))
-    Y_test = np.zeros((1, file_count - split))
-    for i, file in enumerate(train_files):        
-        filename = filepath + '/' + file
-        x = imageio.imread(filename)
-        #resize all images to the same dimensions        
-        x = resize(x, [dimension,dimension,3])
-        X_train[i] = x
-        #The images with cat in their names are cat pictures so we create an output vector where 1 refers to cat pictures and 0 refers to dog pictures
-        if re.match('cat.*', file):
-            Y_train[:, i] = 1
-        else:
-            Y_train[:, i] = 0
-    for i, file in enumerate(test_files):        
-        filename = filepath + '/' + file
-        x = imageio.imread(filename)        
-        x = resize(x, [dimension,dimension,3])
-        X_test[i] = x
+def generate_dataset(examples_count, dataset_type = 'moons'):
+    #This function generates different types of data sets and divides the dataset into training and test sets
+    #The datasets supported are blobs, moons and circles
+    #Shape of X for test and training is (number of features, examples)
+    #Shape of Y for test and training is (1, examples)    
+    if dataset_type == 'blobs':
+        X, y = make_blobs(n_samples=examples_count, centers=2, n_features=2)        
+    elif dataset_type == 'moons':
+        X, y = make_moons(n_samples=examples_count, noise=0.1)
+    elif dataset_type == 'circles':
+        X, y = make_circles(n_samples=examples_count, noise=0.05)
         
-        if re.match('cat.*', file):
-            Y_test[:, i] = 1
-        else:
-            Y_test[:, i] = 0
+    X = X.T
+    y = np.reshape(y, (1, y.shape[0]))   
+    split_index = X.shape[1]*SPLIT_RATIO//100    
+    indices = np.random.permutation(X.shape[1])
+    training_idx, test_idx = indices[:split_index], indices[split_index:]    
+    X_training, X_test, Y_training, Y_test = X[:, training_idx], X[:, test_idx], y[:, training_idx], y[:, test_idx]    
+    return X_training, X_test, Y_training, Y_test
     
-    return X_train, Y_train, X_test, Y_test
-   
-def flatten_dataset(X):
-    #Our program requires the shape of input matrix to be (height*width*numberofchannels, m) where m is number of training examples
-    #The input matrices we get from load_datasets are of shape (m, height, width, number of channels)
-    #The function reshapes the input matrices
-    return X.reshape((X.shape[0], -1)).T
 
-def normalize_dataset(X):
-    #Diving the input matrix by largest possible value of a pixel makes converging towards lowest cost faster
-    #For other datasets look at numpy.linalg.norm
-    return X/255
-
+def plot_dataset(X, Y):
+    #This function plots the dataset        
+    df = DataFrame(dict(x=X[0,:], y=X[1,:], label=Y[0, :]))
+    colors = {0:'red', 1:'blue'}
+    fig, ax = pyplot.subplots()    
+    grouped = df.groupby('label')
+    for key, group in grouped:
+        group.plot(ax=ax, kind='scatter', x='x', y='y', label=key, color=colors[key])
+    pyplot.show()
+    
+def plot_cost(Costs):
+    pyplot.plot(Costs)
+    pyplot.show()
 
 #Steps to create classifier
     
-#1.Load the dataset, remember to put in right filepath and not load too many images    
-#X_train, Y_train, X_test, Y_test = load_datasets('F:/train', 125, 5000)
+#1.Create the dataset of your choosing
+#X_training, X_test, Y_training, Y_test = generate_dataset(5000, 'moons')
 
-#2.Flatten training set and test set inputs
-#X_train = flatten_dataset(X_train)
-#X_test = flatten_dataset(X_test)
-    
-#3. Normalize your training data
-#X_train = normalize_dataset(X_train)
+#2.Train your model
+#train_accuracy, test_accuracy, w, b, Costs, Y_train_pre, Y_test_pre = logistic_regression(X_training, Y_training, X_test, Y_test, 5000, .005, 100)
 
-#4.Train your model
-#train_accuracy, test_accuracy, w, b, Costs, Y_train_pre, Y_test_pre = logistic_regression(X_train, Y_train, X_test, Y_test, 1000, 0.001, 100)
+
+#4.plot your training data and predicted data to see ur predictions
+#plot_dataset(X_training, Y_training)
+#plot_dataset(X_training, Y_train_pre)
 
 #Use predict functions with weigths and bias after training to make predictions
-#Train and test accuracy can be improved by changing the values of hyperparameters learning_rate, num_iterations, file_count
-#Try to plot the cost values with number of iterations to get an intuition about the reducing cost
-#If your cost fluctuates up and down reduce learning_rate
+#Train and test accuracy can be improved by changing the values of hyperparameters learning_rate, num_iterations, examples_count
+#Try to plot the cost values with number of iterations to get an intuition about the reducing cost using plot_cost function
