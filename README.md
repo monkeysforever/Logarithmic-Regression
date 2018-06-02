@@ -14,3 +14,11 @@ Number of Iterations : 5000
 ![training1](https://user-images.githubusercontent.com/13309365/40877516-d72e5b0e-669f-11e8-8b9c-c2bebb71d150.png)
 ![predictions1](https://user-images.githubusercontent.com/13309365/40877517-d86ef9f6-669f-11e8-9f43-0a2993df9ef3.png)
 
+Model 2:  
+Dataset type : Blobs   
+Dataset Size : 5000  
+Training Accuracy : 99.77777    
+Test Accuracy : 100  
+Learning Rate :.005  
+Number of Iterations : 2000  
+
