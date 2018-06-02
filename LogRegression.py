@@ -5,8 +5,7 @@ This program performs logistic regression on three types of datasets which can b
 """
 
 import numpy as np
-from sklearn.datasets import make_moons, make_circles
-from sklearn.datasets import make_blobs
+from sklearn.datasets import make_moons, make_circles, make_blobs
 from matplotlib import pyplot
 from pandas import DataFrame
 
